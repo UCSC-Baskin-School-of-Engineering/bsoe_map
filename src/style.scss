@@ -1,0 +1,55 @@
+// First import the variables
+@import '~bulma/sass/utilities/initial-variables';
+
+$primary: #00458c;
+$success: rgb(40, 192, 78);
+$warning: #F1B521;
+// $danger: #FF5964;
+// $link: #38618C;
+// $navbar-height: 3.5em;
+
+// Then import rest of bulma so variable changes propogate
+@import '~bulma/bulma';
+
+@import '~leaflet/dist/leaflet.css';
+
+$map-height: 600px;
+$map-background: $grey-lighter;
+
+#map {
+  border-radius: 3px;
+  border: 1px solid #444;
+  height: $map-height;
+}
+
+.room-label {
+  div {
+    margin-left: -10px;
+    margin-top: -5px;
+    font-weight: bold;
+    color: black;
+  }
+}
+
+.leaflet-container {
+  background: $map-background;
+}
+
+#floor-buttons {
+  height: $map-height;
+  display: flex;
+  flex-direction: column;
+
+  & > .button {
+    flex: 1;
+    background-color: $grey-light;
+
+    &.is-active {
+      background-color: $warning;
+    }
+  }
+}
+
+html {
+  overflow-y: auto;
+}
