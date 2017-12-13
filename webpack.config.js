@@ -16,7 +16,7 @@ const sharedPlugins = [
   }),
 
   new HtmlWebpackPlugin(Object.assign({
-    template: path.resolve(__dirname, 'src', 'index.html'),                   
+    template: path.resolve(__dirname, 'src', 'index.html'),
   }, process.env.NODE_ENV === 'production' ? {
     minify: {
       collapseWhitespace: true,
@@ -35,13 +35,13 @@ const sharedPlugins = [
 
 const shared = {
   module: {
-    rules: [{
+    rules: [ {
       test: /\.js$/,
-      loaders: ['babel-loader?presets[]=env,presets[]=stage-0'],
+      loaders: [ 'babel-loader?presets[]=env,presets[]=stage-0' ],
       include: path.resolve(__dirname, 'src'),
     }, {
       test: /\.s?css$/,
-      loaders: ExtractTextPlugin.extract({ fallback: 'style-loader', use: ['css-loader', 'sass-loader'] }),
+      loaders: ExtractTextPlugin.extract({ fallback: 'style-loader', use: [ 'css-loader', 'sass-loader' ] }),
       include: path.resolve(__dirname, 'src'),
     }, {
       test: /\.(gif|jpe?g|png|svg|pdf)$/,
@@ -51,7 +51,7 @@ const shared = {
         limit: 5000,
       },
       // include: path.resolve(__dirname, 'src'),
-    }],
+    } ],
   },
 };
 
@@ -61,7 +61,7 @@ const config = process.env.NODE_ENV === 'production' ? {
     main: './src/index.js',
   },
   output: {
-    path: path.resolve('Y://htdocs'),
+    path: path.resolve(__dirname, 'dist'),
     filename: '[name].[chunkhash].js',
     publicPath: './',
   },
@@ -75,9 +75,15 @@ const config = process.env.NODE_ENV === 'production' ? {
       parallel: true,
     }),
     
-    new CleanWebpackPlugin([ 'Y://htdocs/*.js', 'Y://htdocs/*.css', 'Y://htdocs/*.html' ], {
-      allowExternal: true,
-      verbose: true,
+    // new CleanWebpackPlugin([ 'Y://htdocs/*.js', 'Y://htdocs/*.css', 'Y://htdocs/*.html' ], {
+    //   allowExternal: true,
+    //   verbose: true,
+    // }),
+
+    new CleanWebpackPlugin([ 'dist' ]),
+
+    new OptimizeCssAssetsPlugin({
+      cssProcessorOptions: { discardComments: { removeAll: true } },
     }),
     
     // CommonsChunkPlugin: vendor must come before runtime

@@ -1,0 +1,18 @@
+[
+  {
+    "label": "Entrance",
+    "pos": [300, 745],
+    "floor": 1,
+    "classes": ["primary"]
+  }, {
+    "label": "Student Lounge",
+    "pos": [600, 735],
+    "floor": 1,    
+    "classes": []
+  }, {
+    "label": "Perk Coffee",
+    "pos": [522, 734],
+    "floor": 1,    
+    "classes": []
+  }
+]

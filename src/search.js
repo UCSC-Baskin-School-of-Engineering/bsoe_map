@@ -2,52 +2,39 @@ const $searchForm = document.getElementById('search');
 
 const MAX_FLOOR = 3;
 
-const getFirstNum = (str) => {
-  const match = str.match(/\d+/);
-
-  if (match) {
-    const num = parseInt(match[0]);
-    if (typeof num === 'number' && !isNaN(num)) {
-      return num;
-    }
+// Convert string to int
+const toInt = str => {
+  const num = parseInt(str);
+  if (typeof num === 'number' && !isNaN(num)) {
+    return num;
   }
-
   return null;
 };
 
-const getText = (str) => {
-  const match = str.match(/\w{3,}/);
-  if (match) {
-    return match[0];
-  }
+// Is floor in range [0,MAX_FLOOR]
+const validFloor = (num) => (num >= 0 && num <= MAX_FLOOR);
 
-  return null;
-};
-
+// Get room or text from searched string
 const search = (str) => {
 
-  const num = getFirstNum(str);
-  const hasFloor = /\b(floor|level|flor)\b/i.test(str);
+  let match = str.match(/(\d+)[a-z]{0,2}\d?/i);
+  
+  if (match) {
 
-  if (num !== null) {
-    if (hasFloor) {
-      if (num >= 0 && num <= MAX_FLOOR) {
-        return ['floor', num];
+    const roomNum = toInt(match[1]);
+    if (roomNum !== null) {
+      const floor = Math.floor(roomNum / 100);
+      if (validFloor(floor)) {
+        return [ 'room', floor, match[0] ];
       }
-    } else {
-      return ['room', num];
     }
   }
 
-  const hasBasement = /\b(b|base|basement|bottom)\b/i.test(str);
-  
-  if (hasFloor && hasBasement) {
-    return ['floor', 0];
-  }
-
-  const text = getText(str);
-  if (text) {
-    return ['text', text];
+  // TODO
+  match = str.match(/[\w\s]{3,}/);
+  if (match) {
+    const text = match[0].trim();
+    return [ 'text', text ];
   }
   
   return [];

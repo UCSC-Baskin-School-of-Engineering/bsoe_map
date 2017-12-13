@@ -1,6 +1,8 @@
 {
+  "parser": "babel-eslint",
+  "extends": "eslint:recommended",
   "env": {
-    "browser": false,
+    "browser": true,
     "commonjs": true,
     "es6": true,
     "node": true
@@ -12,13 +14,16 @@
     "sourceType": "module"
   },
   "rules": {
-    "no-const-assign": 2,
-    "no-this-before-super": "warn",
+    "no-unused-vars": 1,
     "no-undef": 2,
-    "no-unreachable": 2,
-    "no-unused-vars": "warn",
-    "constructor-super": "warn",
-    "valid-typeof": "warn",
+    "key-spacing": 2,
+    "array-bracket-spacing": ["error", "always"],
+    "object-curly-spacing": ["error", "always"],
+    "semi": ["error", "always"],
+    "comma-dangle": ["error", "always-multiline"],
+    "prefer-const": 2,
+    "no-var": 2,
+    "no-console": 0,
     "no-trailing-spaces": ["error", { "skipBlankLines": true }],
     "indent": [
       "error",

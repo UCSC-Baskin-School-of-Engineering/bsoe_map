@@ -1,5 +1,6 @@
 import L from 'leaflet';
 
+import quicknav from './quicknav.json';
 import search from './search';
 import floorB from './floors/floorB.svg';
 import floor1 from './floors/floor1.svg';
@@ -10,14 +11,14 @@ import json1 from './floors/floor1.json';
 import json2 from './floors/floor2.json';
 import json3 from './floors/floor3.json';
 
-// const mapNum = (val, fromMin, fromMax, toMin, toMax) => {
-//   return (val - fromMin) / (fromMax - fromMin) * (toMax - toMin) + toMin;
-// };
+// DOM elements
+const $parent = document.getElementById('map');
+const $quicknav = document.getElementById('quicknav');
 
 // Constants
 const startZoom = -0.78;
-const entrance = [1623,768];
-const bounds = [[0,0], [1200,1200]];
+const entrance = [ 1623, 768 ];
+const bounds = [ [ 0, 0 ], [ 900, 1200 ] ]; // must be 4:3 aspect ratio to match given dxf ratios
 const polylineOptions = {
   color: 'red',
   weight: 3,
@@ -27,64 +28,40 @@ const polylineOptions = {
 };
 const floorRooms = [ jsonB, json1, json2, json3 ];
 
+// Layers
+const locationPop = L.popup({ closeButton: false });
+const locationLayer = new L.Polyline([], polylineOptions);
+
+// Create array of floor layers that contain room number markers
 const floorLayers = [ floorB, floor1, floor2, floor3 ].map((floor, i) => {
   const floorLayer = L.imageOverlay(floor, bounds);
 
   const rooms = floorRooms[i];
 
   const markers = Object.keys(rooms).map(text => {
-    const icon = L.divIcon({
-      iconSize: new L.Point(0, 0),
-      className: 'room-label',
-      html: `<div>${text}</div>`,
-    });
+    
     const room = rooms[text];
-    // console.log(room[0], room[1]);
-    return L.marker(room, { icon });
-    // const [lat, lng] = rooms[text];
-    // return L.marker([
-    //   mapNum(lat, 14759.06, 16132.54, 440, 790),
-    //   mapNum(lng, -9655.74, -6228.27, 150, 980),
-    // ], { icon });
+
+    const roomMarker = L.marker([
+      room.y * bounds[1][0],
+      room.x * bounds[1][1],
+    ], {
+      icon: L.divIcon({
+        iconSize: new L.Point(0, 0),
+        className: 'room-label',
+        html: `<div>${text}</div>`,
+      }),
+    });
+    rooms[text] = roomMarker;
+
+    return roomMarker;
   });
 
-  return L.layerGroup([floorLayer, ...markers]);
+  return L.layerGroup([ floorLayer, ...markers ]);
 });
 
-let currentFloor;
-
-// Display image of floor layouts
-const setFloor = index => {
-
-  console.log('setFloor:', index);
-  const newFloor = floorLayers[index];
-
-  if (!newFloor) return;
-
-  if (currentFloor) map.removeLayer(currentFloor)
-  currentFloor = newFloor.addTo(map);
-
-  document.querySelectorAll(`.floor-button`).forEach((el, i) => {
-    if (floorLayers.length - 1 - i === index) el.classList.add('is-active');
-    else el.classList.remove('is-active');
-  });
-};
-
-const goToRoom = num => {
-  
-  const floor = Math.floor(num / 100);
-  if (floor <= 3) setFloor(floor);
-  else return;
-  
-  const rooms = floorRooms[floor];
-  const room = rooms[num];
-  if (room) {
-    map.setView([room[0], room[1]], startZoom);
-  }
-};
-
 // Setup leaflet settings
-const map = L.map('map', { // Bind map to element with id 'map'
+const map = L.map($parent, { // Bind map to element with id 'map'
   crs: L.CRS.Simple,
   maxBounds: bounds,
   minZoom: startZoom,
@@ -93,29 +70,79 @@ const map = L.map('map', { // Bind map to element with id 'map'
   zoomSnap: 0.1,
 });
 
+// TEMP
 map.on('click', (e) => {
   console.log('click at:', e.latlng);
 });
 
-// Layers
-const locationPop = L.popup({ closeButton: false });
-const locationLayer = new L.Polyline([], polylineOptions);
+// Resize room labels on zoom
+map.on('zoom', () => {
+  const z = map.getZoom();
+  if (z < 0.4) {
+    $parent.classList.add('zoomed-out');
+  } else {
+    $parent.classList.remove('zoomed-out');
+  }
+});
 
-const reset = coords => {
+let currentFloor;
+
+// Display image of floor layouts
+const setFloor = index => {
+
+  locationPop.remove();
+
+  console.log('setFloor:', index);
+  const newFloor = floorLayers[index];
+
+  if (!newFloor) return;
+
+  if (currentFloor) map.removeLayer(currentFloor);
+  currentFloor = newFloor.addTo(map);
+
+  // Highlight corresponding floor button
+  document.querySelectorAll(`.floor-button`).forEach((el, i) => {
+    if (floorLayers.length - 1 - i === index) el.classList.add('is-active');
+    else el.classList.remove('is-active');
+  });
+};
+
+// Fly to designated room
+const goToRoom = (floor, room) => {
+  
+  setFloor(floor);
+  
+  const roomMarker = floorRooms[floor][room];
+  
+  if (roomMarker) {
+    const latlng = roomMarker.getLatLng();
+
+    locationPop
+    .setLatLng(latlng)
+    .setContent(`<h1>Room ${room}</h1>`)
+    .addTo(map);
+
+    map.setView(latlng, 0.4);
+  }
+};
+
+// Reset map to 1st floor and initial zoom level
+const reset = (coords) => {
   setFloor(1);
   map.setView(coords || entrance, startZoom);
   map.removeLayer(locationPop);
   map.removeLayer(locationLayer);
 };
 
-const createDirections = (coords, content, points) => () => {
+// DOMelement.onclick factory for zooming to given coords and showing popup
+const createDirections = (floor, coords, content, points) => () => {
+
+  setFloor(floor);
 
   if (points) {
-    locationLayer.setLatLngs(points);
+    locationLayer.setLatLngs(points.map(latlng => new L.LatLng(latlng[0], latlng[1])));
     map.fitBounds(locationLayer.getBounds().pad(.1));
     map.addLayer(locationLayer);
-  } else {
-    reset(coords);
   }
 
   if (coords) {
@@ -123,61 +150,52 @@ const createDirections = (coords, content, points) => () => {
     .setLatLng(coords)
     .setContent(content)
     .addTo(map);
+
+    map.setView(coords, 0.4);
   }
 };
 
+// Iterate over quicknav.json and add buttons for each location
+for (const nav of quicknav) {
+  const $el = document.createElement('button');
+  $el.classList.add('button', 'is-fullwidth', 'is-medium', 'is-link', 'is-outlined', ...nav.classes);
+  $el.innerText = nav.label;
+  $el.onclick = createDirections(nav.floor, nav.pos, `<h1>${nav.label}</h1>`, nav.points);
+
+  $quicknav.appendChild($el);
+}
+
 // Map buttons (by id) to functions
-const quickNav = {
-  'go-entrance': createDirections(
-    entrance,
-    'Library Entrance'
-  ),
-  'go-lounge': createDirections(
-    [1817, 577],
-    '3rd Floor<br>Study<br>Rooms<br><a href="http://library.ucsc.edu/services/study-rooms">Reserve</a>',
-    [
-      new L.LatLng(1817, 577),
-      new L.LatLng(2013, 173),
-      new L.LatLng(2100, 434),
-      new L.LatLng(1513, 434),
-      new L.LatLng(1624, 768),
-    ]
-  ),
-  'go-perk': createDirections(
-    [1647, 427],
-    'Global Village Cafe<br><a href="http://amazonjuicesgvc.com/index.html">Order Online</a>',
-    [
-      new L.LatLng(1647, 427),
-      new L.LatLng(1696, 590),
-      new L.LatLng(1624, 768),
-    ]
-  ),
-  'reset': () => reset(),
+const buttonListeners = {
+  reset: () => reset(),
 };
 for (let i = 0; i < floorLayers.length; i++) {
-  quickNav[`floor${i}`] = () => setFloor(i);
+  buttonListeners[`floor${i}`] = () => setFloor(i);
 }
-for (let id in quickNav) {
-  document.getElementById(id).addEventListener('click', quickNav[id]);
+for (const id in buttonListeners) {
+  document.getElementById(id).onclick = buttonListeners[id];
 }
 
 // Reset on startup
 reset();
-search((type, val) => {
+
+// Bind actions to the search action
+search((type, ...val) => {
   
-  console.log('searchResult:', type, val);
+  console.log('searchResult:', type, ...val);
 
   if (type === 'floor') {
-    setFloor(val);
+    setFloor(...val);
   } else if (type === 'room') {
-    goToRoom(val);
+    goToRoom(...val);
   }
 });
 
+// Remove map and event listeners from DOM
 export const destroy = () => {
   map.remove();
 
-  for (let id in quickNav) {
-    document.getElementById(id).removeEventListener('click', quickNav[id]);
+  while ($quicknav.firstChild) {
+    $quicknav.removeChild($quicknav.firstChild);
   }
 };
