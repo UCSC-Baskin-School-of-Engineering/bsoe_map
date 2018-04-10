@@ -1,7 +1,5 @@
 const $searchForm = document.getElementById('search');
 
-const MAX_FLOOR = 3;
-
 // Convert string to int
 const toInt = str => {
   const num = parseInt(str);
@@ -11,33 +9,38 @@ const toInt = str => {
   return null;
 };
 
-// Is floor in range [0,MAX_FLOOR]
-const validFloor = (num) => (num >= 0 && num <= MAX_FLOOR);
-
 // Get room or text from searched string
 const search = (str) => {
 
-  let match = str.match(/(\d+)[a-z]{0,2}\d?/i);
+  let match = str.match(/(e?)(\d+)[a-z]{0,2}\d?\b/i);
   
   if (match) {
 
-    const roomNum = toInt(match[1]);
+    const roomNum = toInt(match[2]);
     if (roomNum !== null) {
-      const floor = Math.floor(roomNum / 100);
-      if (validFloor(floor)) {
-        return [ 'room', floor, match[0] ];
-      }
+      return {
+        type: match[1] ? 'E2' : 'room',
+        floor: Math.floor(roomNum / 100),
+        raw: str,
+        room: match[0].toUpperCase(),
+      };
     }
   }
 
   // TODO
-  match = str.match(/[\w\s]{3,}/);
+  match = str.match(/[a-zA-Z\s-]{3,}/);
   if (match) {
-    const text = match[0].trim();
-    return [ 'text', text ];
+    const text = match[0];
+    return {
+      type: 'text',
+      raw: str,
+      text: text.trim().split(/\s+/).join(' ').toUpperCase(),
+    };
   }
   
-  return [];
+  return {
+    raw: str,
+  };
 };
 
 export default (goTo) => {
@@ -45,7 +48,7 @@ export default (goTo) => {
     e.preventDefault();
     const searchString = e.target[0].value;
     
-    goTo(...search(searchString));
+    goTo(search(searchString));
   });
 };
 

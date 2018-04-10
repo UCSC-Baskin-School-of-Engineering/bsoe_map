@@ -1,12 +1,12 @@
 // First import the variables
 @import '~bulma/sass/utilities/initial-variables';
 
-$primary: #00458c;
-$success: rgb(40, 192, 78);
-$warning: #F1B521;
-// $danger: #FF5964;
-// $link: #38618C;
-// $navbar-height: 3.5em;
+$blue: #003c6c;
+$yellow: #F1B521;
+$red: #ff5050;
+$green: #41bf09;
+
+$primary: $blue;
 
 // Then import rest of bulma so variable changes propogate
 @import '~bulma/bulma';
@@ -22,6 +22,18 @@ $map-background: $grey-lighter;
   height: $map-height;
 }
 
+section.section {
+  padding: 24px;
+}
+
+#search-error, #search-e {
+  margin-bottom: 0;
+}
+
+.is-off {
+  display: none;
+}
+
 .room-label div {
   width: 400px;
   margin-left: -200px;   
@@ -35,6 +47,11 @@ $map-background: $grey-lighter;
   color: black;
   text-shadow: -1px -1px 0 #fff,  1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff; 
 }
+
+// .notification > .delete {
+//   top: 0.5rem;
+//   right: 0.5rem;
+// }
 
 .zoomed-out .room-label div {
   font-size: 8px;
@@ -57,9 +74,25 @@ $map-background: $grey-lighter;
   display: flex;
   flex-direction: column;
 
+  @include mobile {
+    height: auto;
+    flex-direction: row;    
+  }
+
   & > .button {
     flex: 1;
     background-color: $grey-light;
+
+    &:not(:last-child) {
+      margin-right: 16px;
+    }
+
+    @include tablet {
+      span::before {
+        content: 'Floor ';
+      }
+      margin-right: 0;
+    }
 
     &.is-active {
       background-color: $warning;

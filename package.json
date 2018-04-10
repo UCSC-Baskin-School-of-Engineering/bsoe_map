@@ -4,10 +4,11 @@
     "lint": "eslint ./src",
     "build": "cross-env NODE_ENV=production webpack --progress --profile --colors",
     "dev": "cross-env NODE_ENV=development node dev.server.js",
-    "convert": "cd map_extract && bash convert-all.sh"
+    "convert": "cd map_extract && bash convert-all.sh",
+    "deploy": "cp -r dist/. /y/htdocs"
   },
   "dependencies": {
-    "bulma": "^0.6.1",
+    "bulma": "^0.6.2",
     "dxf": "^3.0.1",
     "leaflet": "^1.2.0",
     "svgo": "^1.0.3"

@@ -3,6 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" href="https://www.soe.ucsc.edu/sites/all/themes/bsoev3/favicon.ico" type="image/vnd.microsoft.icon">
     <title>BSOE Map</title>
   </head>
   <body>
@@ -12,8 +13,8 @@
         <h1 class="title">
           Baskin Engineering Building
         </h1>
-        <p class="subtitle">
-          Floor Layout
+        <p id="floor-title" class="subtitle">
+          Floor 1
         </p>
       </div>
     </div>
@@ -28,21 +29,28 @@
             <form id="search">
               <div class="field has-addons">
                 <div class="control is-expanded">
-                  <input class="input is-medium is-success is-rounded" name="search" required type="text" placeholder="Find a Room">
+                  <input class="input is-medium is-success" name="search" required type="text" placeholder="Find a Room">
                 </div>
                 <div class="control">
                   <input type="submit" class="button is-success is-medium" value="Search"/>
                 </div>
-              </div>
+              </div>    
             </form>
+            <br/>
+            <div id="search-error" class="notification is-danger is-off">
+              <button class="delete"></button>Failed to find the requested room/location
+            </div>
+            <div id="search-e" class="notification is-warning is-off">
+              <button class="delete"></button>Maybe you meant to search the <a href="#">E2 building map?</a>
+            </div>
           </div>
         </div>
         <div class="column is-2">
           <div id="floor-buttons">
-            <button id="floor3" class="button is-fullwidth is-large is-link floor-button">Floor 3</button><br/>
-            <button id="floor2" class="button is-fullwidth is-large is-link floor-button">Floor 2</button><br/>
-            <button id="floor1" class="button is-fullwidth is-large is-link floor-button">Floor 1</button><br/>                  
-            <button id="floor0" class="button is-fullwidth is-large is-link floor-button">Floor B</button>
+            <button id="floor3" class="button is-fullwidth is-large is-link floor-button"><span>3</span></button><br/>
+            <button id="floor2" class="button is-fullwidth is-large is-link floor-button"><span>2</span></button><br/>
+            <button id="floor1" class="button is-fullwidth is-large is-link floor-button"><span>1</span></button><br/>                  
+            <button id="floor0" class="button is-fullwidth is-large is-link floor-button"><span>B</span></button>
           </div>
         </div>
         <div class="column is-3">

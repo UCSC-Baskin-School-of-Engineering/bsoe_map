@@ -14,6 +14,13 @@ import json3 from './floors/floor3.json';
 // DOM elements
 const $parent = document.getElementById('map');
 const $quicknav = document.getElementById('quicknav');
+const $floorTitle = document.getElementById('floor-title');
+const $searchError = document.getElementById('search-error');
+const $searchE = document.getElementById('search-e');
+const $buttons = document.querySelectorAll('.floor-button');
+const $searchFields = document.querySelectorAll('#search input');
+document.querySelector('#search-error .delete').onclick = () => $searchError.classList.add('is-off');
+document.querySelector('#search-e .delete').onclick = () => $searchE.classList.add('is-off');
 
 // Constants
 const startZoom = -0.78;
@@ -27,6 +34,7 @@ const polylineOptions = {
   lineJoin: 'round',
 };
 const floorRooms = [ jsonB, json1, json2, json3 ];
+const locationNames = {};
 
 // Layers
 const locationPop = L.popup({ closeButton: false });
@@ -101,10 +109,14 @@ const setFloor = index => {
   currentFloor = newFloor.addTo(map);
 
   // Highlight corresponding floor button
-  document.querySelectorAll(`.floor-button`).forEach((el, i) => {
+  $buttons.forEach((el, i) => {
     if (floorLayers.length - 1 - i === index) el.classList.add('is-active');
     else el.classList.remove('is-active');
   });
+
+  // Update title
+  const label = index === 0 ? 'B' : index;
+  $floorTitle.textContent = `Floor ${label}`;
 };
 
 // Fly to designated room
@@ -134,7 +146,7 @@ const reset = (coords) => {
   map.removeLayer(locationLayer);
 };
 
-// DOMelement.onclick factory for zooming to given coords and showing popup
+// Function factory for zooming to given coords and showing popup
 const createDirections = (floor, coords, content, points) => () => {
 
   setFloor(floor);
@@ -163,6 +175,9 @@ for (const nav of quicknav) {
   $el.onclick = createDirections(nav.floor, nav.pos, `<h1>${nav.label}</h1>`, nav.points);
 
   $quicknav.appendChild($el);
+
+  // Create searchable quicknav object
+  locationNames[nav.label.toUpperCase()] = $el.onclick;
 }
 
 // Map buttons (by id) to functions
@@ -180,15 +195,36 @@ for (const id in buttonListeners) {
 reset();
 
 // Bind actions to the search action
-search((type, ...val) => {
+search((res) => {
   
-  console.log('searchResult:', type, ...val);
+  console.log('searchResult:', res);
 
-  if (type === 'floor') {
-    setFloor(...val);
-  } else if (type === 'room') {
-    goToRoom(...val);
+  // Reset search fields and error messages
+  $searchFields.forEach(el => el.classList.remove('is-danger'));
+  $searchError.classList.add('is-off');
+  $searchE.classList.add('is-off');
+
+  // Find room or location
+  if (res.type === 'room') {
+    const floor = floorRooms[res.floor];
+    if (floor && floor.hasOwnProperty(res.room)) {
+      return goToRoom(res.floor, res.room);
+    }
+  } else if (res.type === 'text') {
+    const navAction = locationNames[res.text];
+    if (navAction) {
+      return navAction();
+    }
   }
+
+  console.error('Failed to find :', res.raw);
+
+  // Enable search field error and error message
+  $searchFields.forEach(el => el.classList.add('is-danger'));
+  if (res.type === 'E2') {
+    $searchE.classList.remove('is-off');
+    $searchE.querySelector('a').href = 'http://maps.ucsc.edu/content/engineering-2#' + res.room;
+  } else $searchError.classList.remove('is-off');
 });
 
 // Remove map and event listeners from DOM
