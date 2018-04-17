@@ -6,6 +6,7 @@
 
 const dxf = require('dxf');
 const fs = require('fs');
+const path = require('path');
 const Svgo = require('svgo');
 const { promisify } = require('util');
 const createSVG = require('./createSVG');
@@ -107,7 +108,8 @@ const parseEntities = async (parsed) => {
   });
 };
 
-const filename = ifile.replace(/\.[^/.]+$/, '');
+// const filename = ifile.replace(/\.[^/.]+$/, '');
+const filename = path.basename(ifile, path.extname(ifile));
 
 (async () => {
   // Read dxf data from input_file

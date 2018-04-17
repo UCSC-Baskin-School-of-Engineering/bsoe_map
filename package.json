@@ -2,10 +2,9 @@
   "name": "bsoe_map",
   "scripts": {
     "lint": "eslint ./src",
-    "build": "cross-env NODE_ENV=production webpack --progress --profile --colors",
-    "dev": "cross-env NODE_ENV=development node dev.server.js",
-    "convert": "cd map_extract && bash convert-all.sh",
-    "deploy": "cp -r dist/. /y/htdocs"
+    "build": "source ./.buildingrc && export NODE_ENV=production && webpack --progress --profile --colors",
+    "dev": "source ./.buildingrc && export NODE_ENV=development && node dev.server.js",
+    "convert": "source ./.buildingrc && bash convert-all.sh $BUILDING"
   },
   "dependencies": {
     "bulma": "^0.6.2",
@@ -20,7 +19,6 @@
     "babel-preset-env": "^1.6.1",
     "babel-preset-stage-0": "^6.24.1",
     "clean-webpack-plugin": "^0.1.17",
-    "cross-env": "^5.1.1",
     "css-loader": "^0.28.7",
     "eslint": "^4.12.0",
     "eslint-config-airbnb": "^16.1.0",

@@ -13,11 +13,10 @@ An interactive web app for navigating the BSOE floorplans
 - Open browser to ```localhost:8080```
 - Updating any code in ```./src``` will update localhost (may need to refresh page)
 
-Edit ```./src/quicknav.json``` to add/remove/modify quick navigation buttons
 ## Build
 - ```$ npm run build```
 ## Update Map Svgs
-- Add any amount of map dxf files to ```./map_extract```
+- Add any amount of map dxf files to ```./buildings/<floorname>```
 - ```$ npm run convert``` to convert the files to svgs and extract their room data
 
 See the comments in ```./map_extract/convert.js``` to learn how to modify layers, colors, etc.

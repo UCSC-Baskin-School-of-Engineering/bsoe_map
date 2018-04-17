@@ -6,17 +6,22 @@ const CleanWebpackPlugin = require('clean-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 
+const buildingConfig = require(`./buildings/${process.env.BUILDING}/config`);
+
 console.log(`Compiling ${process.env.NODE_ENV} build...`);
 
 const sharedPlugins = [
   new webpack.DefinePlugin({
     'process.env': {
       NODE_ENV: JSON.stringify(process.env.NODE_ENV),
+      BUILDING: JSON.stringify(process.env.BUILDING),
     },
   }),
 
   new HtmlWebpackPlugin(Object.assign({
     template: path.resolve(__dirname, 'src', 'index.html'),
+    title: buildingConfig.title,
+    browserTitle: buildingConfig.browserTitle,
   }, process.env.NODE_ENV === 'production' ? {
     minify: {
       collapseWhitespace: true,

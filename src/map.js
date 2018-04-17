@@ -1,15 +1,7 @@
 import L from 'leaflet';
 
-import quicknav from './quicknav.json';
 import search from './search';
-import floorB from './floors/floorB.svg';
-import floor1 from './floors/floor1.svg';
-import floor2 from './floors/floor2.svg';
-import floor3 from './floors/floor3.svg';
-import jsonB from './floors/floorB.json';
-import json1 from './floors/floor1.json';
-import json2 from './floors/floor2.json';
-import json3 from './floors/floor3.json';
+const { floorRooms, floorSvgs, quicknav, suggestE2 } = require(`../buildings/${process.env.BUILDING}/config.js`);
 
 // DOM elements
 const $parent = document.getElementById('map');
@@ -33,7 +25,6 @@ const polylineOptions = {
   dashArray: '5,5',
   lineJoin: 'round',
 };
-const floorRooms = [ jsonB, json1, json2, json3 ];
 const locationNames = {};
 
 // Layers
@@ -41,7 +32,7 @@ const locationPop = L.popup({ closeButton: false });
 const locationLayer = new L.Polyline([], polylineOptions);
 
 // Create array of floor layers that contain room number markers
-const floorLayers = [ floorB, floor1, floor2, floor3 ].map((floor, i) => {
+const floorLayers = floorSvgs.map((floor, i) => {
   const floorLayer = L.imageOverlay(floor, bounds);
 
   const rooms = floorRooms[i];
@@ -221,9 +212,9 @@ search((res) => {
 
   // Enable search field error and error message
   $searchFields.forEach(el => el.classList.add('is-danger'));
-  if (res.type === 'E2') {
+  if (res.type === 'E2' && suggestE2) {
     $searchE.classList.remove('is-off');
-    $searchE.querySelector('a').href = 'http://maps.ucsc.edu/content/engineering-2#' + res.room;
+    $searchE.querySelector('a').href = '/E2' + res.room;
   } else $searchError.classList.remove('is-off');
 });
 
