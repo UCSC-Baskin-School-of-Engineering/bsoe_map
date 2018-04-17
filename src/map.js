@@ -214,7 +214,7 @@ search((res) => {
   $searchFields.forEach(el => el.classList.add('is-danger'));
   if (res.type === 'E2' && suggestE2) {
     $searchE.classList.remove('is-off');
-    $searchE.querySelector('a').href = '/E2' + res.room;
+    $searchE.querySelector('a').href = '/E2#' + res.room;
   } else $searchError.classList.remove('is-off');
 });
 
