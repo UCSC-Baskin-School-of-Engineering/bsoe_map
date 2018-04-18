@@ -2,6 +2,7 @@ const config = {
   title: 'Baskin Engineering Building',
   browserTitle: 'E2 Map',
   suggestE2: true,
+  bounds: [ [ 0, 0 ], [ 900, 1200 ] ],
   theme: {
     primary: '',
     secondary: '',

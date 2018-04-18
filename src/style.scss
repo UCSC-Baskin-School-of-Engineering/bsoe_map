@@ -82,13 +82,10 @@ section.section {
     background-color: $grey-light;
 
     &:not(:last-child) {
-      margin-right: 16px;
+      margin-bottom: 16px;
     }
 
     @include tablet {
-      span::before {
-        content: 'Floor ';
-      }
       margin-right: 0;
     }
 

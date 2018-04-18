@@ -4,7 +4,7 @@
     "lint": "eslint ./src",
     "build": "source ./.buildingrc && export NODE_ENV=production && webpack --progress --profile --colors",
     "dev": "source ./.buildingrc && export NODE_ENV=development && node dev.server.js",
-    "convert": "source ./.buildingrc && bash convert-all.sh $BUILDING"
+    "convert": "source ./.buildingrc && bash map_extract/convert-all.sh buildings/$BUILDING"
   },
   "dependencies": {
     "bulma": "^0.6.2",

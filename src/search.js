@@ -44,12 +44,12 @@ const search = (str) => {
 };
 
 export default (goTo) => {
-  $searchForm.addEventListener('submit', e => {
+  $searchForm.onsubmit = (e) => {
     e.preventDefault();
     const searchString = e.target[0].value;
     
     goTo(search(searchString));
-  });
+  };
 };
 
 

@@ -1,6 +1,7 @@
 const config = {
   title: 'Engineering 2 Building',
   browserTitle: 'E2 Map',
+  startZoom: -0.80,
   theme: {
     primary: '',
     secondary: '',
@@ -29,4 +30,4 @@ const helper = (floors, config) => {
   return config;
 };
 
-module.exports = helper([ 'B', '1', '2', '3' ], config);
+module.exports = helper([ '1', '2', '3', '4', '5' ], config);

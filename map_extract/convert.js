@@ -60,19 +60,21 @@ const layerActions = {
   'A-EQPM': false,
   'A-FLOR': false,
   'A-DOOR': false,
-  
+
 };
 
 const normalize = (val, in_min, in_max) => {
   return (val - in_min) / (in_max - in_min);
 };
 
-const matchRoom = /^(\[(\w+)\])?0*(\d+([a-z]*)\d*)$/i;
+// Use this regex to match valid room numbers
+// e.g. room starting with \L[NT]00239B12
+// or matching [NJ]123, 00345, 230D, etc.
+const matchRoom = /^(?:\\L)?(\[(\w+)\])?0*(\d+([a-z]*)\d*)/i;
 const invalidRoomLabel = /^(BG|CG|NC|SA|XX)$/;
 // Add a new room if it is valid
 const addRoom = ({ string, x, y }, bbox) => {
   const match = string.match(matchRoom);
-  
   if (!match || // No rooms that don't match matchRoom
     match[4] === 'S' || // No staircase rooms
     invalidRoomLabel.test(match[2])) { // No room labels matching invalidRoomLabel
