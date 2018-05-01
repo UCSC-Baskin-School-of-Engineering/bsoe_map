@@ -2,9 +2,7 @@
 @import '~bulma/sass/utilities/initial-variables';
 
 $danger: #ff5050;
-$success: #41bf09;
-$primary: #003c6c;
-$warning: #F1B521;
+$success: #58b82b;
 
 // Then import rest of bulma so variable changes propogate
 @import '~bulma/bulma';
@@ -16,7 +14,7 @@ $map-background: $grey-lighter;
 
 #map {
   border-radius: 3px;
-  border: 1px solid #444;
+  border: 1px solid rgba(0, 0, 0, 0.5);
   height: $map-height;
 }
 
@@ -80,6 +78,7 @@ section.section {
   & > .button {
     flex: 1;
     background-color: $grey-light;
+    color: $warning-invert;
 
     &:not(:last-child) {
       margin-bottom: 16px;
@@ -90,7 +89,7 @@ section.section {
     }
 
     &.is-active {
-      background-color: $warning;
+      @extend .is-warning;
     }
   }
 }

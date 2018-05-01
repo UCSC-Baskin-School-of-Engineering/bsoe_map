@@ -6,9 +6,22 @@ const CleanWebpackPlugin = require('clean-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 
-const buildingConfig = require(`./buildings/${process.env.BUILDING}/config`);
+let buildingConfig;
+try {
+  buildingConfig = require(`./buildings/${process.env.BUILDING}/config.json`);
+} catch(_) {
+  throw `Failed to find building config file: "./buildings/${process.env.BUILDING}/config.json".
+  Did you export a valid BUILDING environment variable?`;
+}
 
 console.log(`Compiling ${process.env.NODE_ENV} build...`);
+
+let sassVars = '';
+if (buildingConfig.theme) {
+  for (const key in buildingConfig.theme) {
+    sassVars += `$${key}:${buildingConfig.theme[key]};`;
+  }
+}
 
 const sharedPlugins = [
   new webpack.DefinePlugin({
@@ -32,7 +45,6 @@ const sharedPlugins = [
 
   new ExtractTextPlugin({
     filename: '[contenthash].css',
-    // filename: 'style.css',
     allChunks: true,
     disable: process.env.NODE_ENV === 'development',
   }),
@@ -46,7 +58,12 @@ const shared = {
       include: path.resolve(__dirname, 'src'),
     }, {
       test: /\.s?css$/,
-      loaders: ExtractTextPlugin.extract({ fallback: 'style-loader', use: [ 'css-loader', 'sass-loader' ] }),
+      loaders: ExtractTextPlugin.extract({ fallback: 'style-loader', use: [
+        'css-loader',
+        { loader: 'sass-loader', options: {
+          data: sassVars,
+        } },
+      ] }),
       include: path.resolve(__dirname, 'src'),
     }, {
       test: /\.(gif|jpe?g|png|svg|pdf)$/,
@@ -60,16 +77,21 @@ const shared = {
   },
 };
 
-const config = process.env.NODE_ENV === 'production' ? {
+let config;
+if (process.env.NODE_ENV === 'production') config = { // PRODUCTION
+
   ...shared,
+
   entry: {
     main: './src/index.js',
   },
+
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: '[name].[chunkhash].js',
     publicPath: './',
   },
+
   plugins: [
 
     ...sharedPlugins,
@@ -79,11 +101,6 @@ const config = process.env.NODE_ENV === 'production' ? {
     new UglifyJsPlugin({
       parallel: true,
     }),
-    
-    // new CleanWebpackPlugin([ 'Y://htdocs/*.js', 'Y://htdocs/*.css', 'Y://htdocs/*.html' ], {
-    //   allowExternal: true,
-    //   verbose: true,
-    // }),
 
     new CleanWebpackPlugin([ 'dist' ]),
 
@@ -101,14 +118,19 @@ const config = process.env.NODE_ENV === 'production' ? {
     //   name: 'runtime',
     // }),
   ],
-} : {
+};
+else if (process.env.NODE_ENV === 'development') config = { // DEVELOPMENT
+
   ...shared,
+
   devtool: 'eval-source-map',
+
   entry: [
     'webpack-dev-server/client?http://0.0.0.0:8080',
     'webpack/hot/only-dev-server',
     './src/index.js',
   ],
+
   plugins: [
     new webpack.NamedModulesPlugin(),
     
@@ -116,6 +138,13 @@ const config = process.env.NODE_ENV === 'production' ? {
 
     ...sharedPlugins,
   ],
+
+  devServer: {
+    hot: true,
+    port: 8080,
+  },
+
 };
+else throw 'Must set NODE_ENV to production or development';
 
 module.exports = config;

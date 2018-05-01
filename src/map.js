@@ -2,13 +2,20 @@ import L from 'leaflet';
 
 import search from './search';
 const {
-  floors, floorRooms, floorSvgs, quicknav, suggestE2, startZoom = -0.78,
-} = require(`../buildings/${process.env.BUILDING}/config.js`);
+  floors, quicknav, suggestE2, startZoom = -0.78,
+} = require(`../buildings/${process.env.BUILDING}/config.json`);
+const floorRooms = [],
+      floorSvgs = [];
+for (const floor of floors) {
+  floorRooms.push(require(`../buildings/${process.env.BUILDING}/floor${floor}.json`));
+  floorSvgs.push(require(`../buildings/${process.env.BUILDING}/floor${floor}.svg`));
+}
 
 // DOM elements
 const $parent = document.getElementById('map');
 const $quicknav = document.getElementById('quicknav');
 const $floorTitle = document.getElementById('floor-title');
+const $search = document.getElementById('search');
 const $searchError = document.getElementById('search-error');
 const $searchE = document.getElementById('search-e');
 const $floorButtons = document.getElementById('floor-buttons');
@@ -111,9 +118,7 @@ const setFloor = index => {
 
 // Fly to designated room
 const goToRoom = (floor, room) => {
-  
-  setFloor(floor);
-  
+    
   const roomMarker = floorRooms[floor][room];
   
   if (roomMarker) {
@@ -128,6 +133,18 @@ const goToRoom = (floor, room) => {
   }
 };
 
+const setErrors = (state) => {
+  $searchFields.forEach(el => el.classList.remove('is-danger'));
+  $searchError.classList.add('is-off');
+  $searchE.classList.add('is-off');
+
+  if (state === 'E2') {
+    $searchE.classList.remove('is-off');
+  } else if (state) {
+    $searchError.classList.remove('is-off');
+  }
+};
+
 // Reset map to 1st floor and initial zoom level
 const reset = (coords) => {
   setFloor(1);
@@ -135,6 +152,9 @@ const reset = (coords) => {
   map.setView(coords || startCoords, startZoom);
   map.removeLayer(locationPop);
   map.removeLayer(locationLayer);
+
+  setErrors(false);
+  $search.elements[0].value = '';
 };
 
 // Function factory for zooming to given coords and showing popup
@@ -184,20 +204,27 @@ for (let i = floors.length - 1; i >=0; i--) {
 document.getElementById('reset').onclick = () => reset();
 
 // Bind actions to the search action
-search((res) => {
+search($search, (res) => {
   
   console.log('searchResult:', res);
 
   // Reset search fields and error messages
-  $searchFields.forEach(el => el.classList.remove('is-danger'));
-  $searchError.classList.add('is-off');
-  $searchE.classList.add('is-off');
+  setErrors(false);
 
   // Find room or location
   if (res.type === 'room') {
-    const floor = floorRooms[res.floor];
-    if (floor && floor.hasOwnProperty(res.room)) {
-      return goToRoom(res.floor, res.room);
+    let floorIndex = 0;
+    if (res.floor > 0) {
+      const searchFloor = res.floor.toString();
+      floorIndex = floors.findIndex((f) => f === searchFloor);
+    }
+    
+    const floor = floorRooms[floorIndex];
+    if (floor) {
+      setFloor(floorIndex);
+      if (floor.hasOwnProperty(res.room)) {
+        return goToRoom(floorIndex, res.room);
+      }
     }
   } else if (res.type === 'text') {
     const navAction = locationNames[res.text];
@@ -209,11 +236,12 @@ search((res) => {
   console.error('Failed to find :', res.raw);
 
   // Enable search field error and error message
-  $searchFields.forEach(el => el.classList.add('is-danger'));
   if (suggestE2 && res.type === 'E2') {
-    $searchE.classList.remove('is-off');
+    setErrors('E2');
     $searchE.querySelector('a').href = '/E2#' + res.room.substring(1);
-  } else $searchError.classList.remove('is-off');
+  } else {
+    setErrors(true);
+  }
 });
 
 // Reset on startup
@@ -233,7 +261,6 @@ const triggerEvent = (el, eventName) => {
 // Allow searching on page load
 const hash = window.location.hash.substring(1);
 if (hash) {
-  const $search = document.getElementById('search');
   $search.elements[0].value = hash;
   triggerEvent($search, 'submit');
 }

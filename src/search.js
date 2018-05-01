@@ -1,5 +1,3 @@
-const $searchForm = document.getElementById('search');
-
 // Convert string to int
 const toInt = str => {
   const num = parseInt(str);
@@ -43,7 +41,7 @@ const search = (str) => {
   };
 };
 
-export default (goTo) => {
+export default ($searchForm, goTo) => {
   $searchForm.onsubmit = (e) => {
     e.preventDefault();
     const searchString = e.target[0].value;

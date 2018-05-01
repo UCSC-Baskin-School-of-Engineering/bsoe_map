@@ -1,0 +1,16 @@
+{
+  "title": "Engineering 2 Building",
+  "browserTitle": "E2 Map",
+  "floors": [ "1", "2", "3", "4", "5" ],
+  "startZoom": -0.8,
+  "theme": {
+    "primary": "#003c6c",
+    "warning": "#fdc700"
+  },
+  "quicknav": [{
+    "label": "Entrance",
+    "pos": [ 300, 745 ],
+    "floor": 1,
+    "classes": [ "primary" ]
+  }]
+}

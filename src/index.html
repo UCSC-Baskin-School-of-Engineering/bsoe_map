@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="shortcut icon" href="https://www.soe.ucsc.edu/sites/all/themes/bsoev3/favicon.ico" type="image/vnd.microsoft.icon">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />    
     <title><%= htmlWebpackPlugin.options.browserTitle %></title>
   </head>
   <body>
@@ -27,7 +27,7 @@
             <form id="search">
               <div class="field has-addons">
                 <div class="control is-expanded">
-                  <input class="input is-medium is-success" name="search" required type="text" placeholder="Find a Room">
+                  <input class="input is-medium is-success" name="search" autocomplete="off" required type="text" placeholder="Find a Room">
                 </div>
                 <div class="control">
                   <input type="submit" class="button is-success is-medium" value="Search"/>
